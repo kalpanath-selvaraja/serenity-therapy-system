@@ -28,6 +28,21 @@ public class TherapySession {
     private SessionStatus status = SessionStatus.SCHEDULED;
 
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id",nullable = false)
+    private Patient patient;
+
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "therapist_id", nullable = false)
+    private  Therapist therapist;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "program_id", nullable = false)
+    private TherapyProgram program;
+
+
+
 
 
 }

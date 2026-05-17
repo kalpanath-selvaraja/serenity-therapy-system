@@ -1,6 +1,10 @@
 package com.serenity.entity;
 import jakarta.persistence.*;
 import lombok.*;
+
+import java.util.ArrayList;
+import java.util.List;
+
 @Entity
 @Table(name = "therapists")
 @Setter
@@ -28,5 +32,31 @@ public class Therapist {
 
     @Column(name = "availability_status", nullable = false)
     private boolean availabilityStatus = true;
+
+    @OneToMany(mappedBy = "therapist" , cascade = {CascadeType.PERSIST, CascadeType.MERGE} , fetch = FetchType.LAZY)
+    private List<TherapySession> sessions = new ArrayList<>();
+
+    @ManyToMany(cascade = {CascadeType.PERSIST , CascadeType.MERGE}, fetch = FetchType.LAZY)
+    @JoinTable(
+            name = "therapist_programs",
+            joinColumns = @JoinColumn(name = "therapist_id"),
+            inverseJoinColumns = @JoinColumn(name = "program_id")
+    )
+    private List<TherapyProgram> assignedPrograms = new ArrayList<>();
+
+
+    public void addProgram(TherapyProgram program) {
+        assignedPrograms.add(program);
+        program.getAssignedTherapists().add(this);
+    }
+
+    public void removeProgram(TherapyProgram program) {
+        assignedPrograms.remove(program);
+        program.getAssignedTherapists().remove(this);
+    }
+
+
+
+
 
 }

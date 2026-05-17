@@ -28,11 +28,14 @@ public class Payment {
     @Column(name = "payment_date", nullable = false)
     private LocalDate paymentDate;
 
-    @Enumerated(EnumType.STRING)
+
     @Column(name = "status", nullable = false)
     private PaymentStatus status =  PaymentStatus.PENDING;
 
     @Column(name = "payment_method",length = 50)
     private String paymentMethod;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "patient_id" , nullable = false)
+    private Patient patient;
 }
