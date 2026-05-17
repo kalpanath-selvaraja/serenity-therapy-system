@@ -14,18 +14,23 @@ public class TherapistDAO implements DAOInterface<Therapist> {
     @Override
     public void save(Therapist entity) {
         Transaction transaction = null;
-
-// try-with-resources automatically closes the session when done
-        try(Session session = FactoryConfiguration.getInstance().getSession()){
+        Session session = null;
+        // try-with-resources automatically closes the session when done
+        try{
+            session = FactoryConfiguration.getInstance().getSession();
 
             transaction = session.beginTransaction(); // transaction changes
             session.persist(entity); // save
             transaction.commit(); // commit the transaction
 
-        } catch (Exception e) {
+        } catch(Exception e) {
             // If anything fails, undo all changes in this transaction
             if (transaction != null) transaction.rollback();  // only rolls back if the transaction has happend and then an exception arrives
             throw e;
+        }finally{
+            if (session != null) {
+                session.close();              // session closes
+            }
         }
 
     }
@@ -35,42 +40,53 @@ public class TherapistDAO implements DAOInterface<Therapist> {
     @Override
     public void update(Therapist entity) {
         Transaction transaction = null;
+        Session session = null;
+        try {
+            session = FactoryConfiguration.getInstance().getSession();
 
-        try (Session session = FactoryConfiguration.getInstance().getSession()){
             transaction = session.beginTransaction();
             session.merge(entity); // updates
             transaction.commit();
         } catch (Exception e) {
 
-
             if(transaction != null){
                 transaction.rollback();
             }
 
             throw e;
+        }finally {
+            if (session != null) {
+                session.close();              // session closes
+            }
         }
 
     }
+
 
     @Override
     public void delete(Therapist entity) {
-
         Transaction transaction = null;
-
-        try(Session session = FactoryConfiguration.getInstance().getSession()){
+        Session session = null;
+        try {
+            session = FactoryConfiguration.getInstance().getSession();
             transaction = session.beginTransaction();
-            Therapist managed = session.get(Therapist.class , entity.getTherapistId());
-            if(managed != null) {
-                session.remove(entity); // delete
+            Therapist managed = session.get(Therapist.class, entity.getTherapistId());
+            if (managed != null) {
+                session.remove(managed);
             }
             transaction.commit();
         } catch (Exception e) {
-            if(transaction != null){
+            if (transaction != null) {
                 transaction.rollback();
             }
             throw e;
+        } finally {
+            if (session != null) {
+                session.close();              // session closes
+            }
         }
     }
+
 
 
 

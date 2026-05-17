@@ -1,18 +1,17 @@
 package com.serenity.dao;
 
-import com.serenity.entity.TherapySession;
+import com.serenity.entity.Payment;
 import com.serenity.util.FactoryConfiguration;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 
 import java.io.Serializable;
-import java.time.LocalDate;
 import java.util.List;
 
-public class TherapySessionDAO implements DAOInterface<TherapySession> {
+public class PaymentDAO implements DAOInterface<Payment> {
 
     @Override
-    public void save(TherapySession entity) {
+    public void save(Payment entity) {
         Transaction transaction = null;
         try (Session session = FactoryConfiguration.getInstance().getSession()) {
             transaction = session.beginTransaction();
@@ -25,7 +24,7 @@ public class TherapySessionDAO implements DAOInterface<TherapySession> {
     }
 
     @Override
-    public void update(TherapySession entity) {
+    public void update(Payment entity) {
         Transaction transaction = null;
         try (Session session = FactoryConfiguration.getInstance().getSession()) {
             transaction = session.beginTransaction();
@@ -38,11 +37,11 @@ public class TherapySessionDAO implements DAOInterface<TherapySession> {
     }
 
     @Override
-    public void delete(TherapySession entity) {
+    public void delete(Payment entity) {
         Transaction transaction = null;
         try (Session session = FactoryConfiguration.getInstance().getSession()) {
             transaction = session.beginTransaction();
-            TherapySession managed = session.get(TherapySession.class, entity.getTherapySessionId());
+            Payment managed = session.get(Payment.class, entity.getPaymentId());
             if (managed != null) session.remove(managed);
             transaction.commit();
         } catch (Exception e) {
@@ -52,33 +51,23 @@ public class TherapySessionDAO implements DAOInterface<TherapySession> {
     }
 
     @Override
-    public TherapySession getById(Class<TherapySession> clazz, Serializable id) {
+    public Payment getById(Class<Payment> clazz, Serializable id) {
         try (Session session = FactoryConfiguration.getInstance().getSession()) {
             return session.get(clazz, id);
         }
     }
 
     @Override
-    public List<TherapySession> getAll(Class<TherapySession> clazz) {
+    public List<Payment> getAll(Class<Payment> clazz) {
         try (Session session = FactoryConfiguration.getInstance().getSession()) {
-            return session.createQuery("FROM TherapySession", TherapySession.class).list();
+            return session.createQuery("FROM Payment", Payment.class).list();
         }
     }
 
-    // Find sessions within a date range
-    public List<TherapySession> findByDateRange(LocalDate start, LocalDate end) {
+    // Find all payments made by a specific patient
+    public List<Payment> findByPatient(Long patientId) {
         try (Session session = FactoryConfiguration.getInstance().getSession()) {
-            return session.createQuery("FROM TherapySession WHERE date BETWEEN :start AND :end", TherapySession.class)
-                    .setParameter("start", start)
-                    .setParameter("end", end)
-                    .list();
-        }
-    }
-
-    // Find all sessions for a patient, eagerly loading therapist and program details
-    public List<TherapySession> findByPatient(Long patientId) {
-        try (Session session = FactoryConfiguration.getInstance().getSession()) {
-            return session.createQuery("FROM TherapySession ts JOIN FETCH ts.therapist JOIN FETCH ts.program WHERE ts.patient.patientId = :pid", TherapySession.class)
+            return session.createQuery("FROM Payment WHERE patient.patientId = :pid", Payment.class)
                     .setParameter("pid", patientId)
                     .list();
         }
